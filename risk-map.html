@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Risk Intelligence Map | LandslideGuard NER</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+
+        .map-wrapper {
+            position: relative;
+            height: calc(100vh - 150px);
+            min-height: 500px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #e1e7ea;
+            background: #dfe7e8;
+        }
+
+        #riskMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-panel {
+            position: absolute;
+            z-index: 500;
+            top: 18px;
+            left: 18px;
+
+            width: 245px;
+
+            background: rgba(255,255,255,0.96);
+
+            border: 1px solid #e4e9eb;
+
+            border-radius: 12px;
+
+            padding: 16px;
+
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .map-panel h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .map-panel p {
+            font-size: 10px;
+            color: #7b8790;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .legend-title {
+            font-size: 9px;
+            font-weight: 800;
+            color: #697780;
+            margin-bottom: 9px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            margin: 8px 0;
+            color: #46545c;
+        }
+
+        .legend-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .critical-dot {
+            background: #dc4b51;
+        }
+
+        .high-dot {
+            background: #e39a22;
+        }
+
+        .moderate-dot {
+            background: #d8bd35;
+        }
+
+        .low-dot {
+            background: #16a66c;
+        }
+
+        .map-info {
+            position: absolute;
+            z-index: 500;
+            right: 18px;
+            bottom: 18px;
+
+            width: 235px;
+
+            background: rgba(12,23,34,0.94);
+
+            color: white;
+
+            padding: 15px;
+
+            border-radius: 11px;
+
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .map-info small {
+            color: #8fa0aa;
+            font-size: 8px;
+        }
+
+        .map-info h3 {
+            margin-top: 5px;
+            font-size: 15px;
+        }
+
+        .map-info p {
+            margin-top: 6px;
+            font-size: 9px;
+            color: #c1cbd0;
+            line-height: 1.5;
+        }
+
+        .risk-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-top: 12px;
+
+            padding-top: 10px;
+
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .risk-score strong {
+            font-size: 22px;
+            color: #ff656b;
+        }
+
+        .map-search {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .map-search input {
+            width: 100%;
+            padding: 8px 9px;
+
+            border: 1px solid #dce3e6;
+            border-radius: 6px;
+
+            font-size: 10px;
+            outline: none;
+        }
+
+        .map-search button {
+            border: none;
+            border-radius: 6px;
+
+            background: #12202c;
+            color: white;
+
+            padding: 0 11px;
+
+            cursor: pointer;
+        }
+
+        @media(max-width:700px) {
+
+            .map-panel {
+                width: 190px;
+                top: 10px;
+                left: 10px;
+                padding: 11px;
+            }
+
+            .map-info {
+                width: 190px;
+                right: 10px;
+                bottom: 10px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+        <div class="sidebar-brand-icon">
+            LG
+        </div>
+
+        <div>
+
+            <h3>
+                Landslide<span>Guard</span>
+            </h3>
+
+            <p>
+                SIH26001 • NER
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-title">
+        MONITORING
+    </div>
+
+
+    <a href="dashboard.html">
+
+        <span class="nav-icon">▦</span>
+
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="risk-map.html"
+       class="active">
+
+        <span class="nav-icon">◎</span>
+
+        <span>Risk Intelligence Map</span>
+
+    </a>
+
+
+    <a href="ai-prediction.html">
+
+        <span class="nav-icon">◈</span>
+
+        <span>AI Risk Prediction</span>
+
+    </a>
+
+
+    <a href="alerts.html">
+
+        <span class="nav-icon">!</span>
+
+        <span>Early Warnings</span>
+
+    </a>
+
+
+    <div class="nav-title">
+        FIELD OPERATIONS
+    </div>
+
+
+    <a href="road-status.html">
+
+        <span class="nav-icon">▱</span>
+
+        <span>Road & Infrastructure</span>
+
+    </a>
+
+
+    <a href="weather.html">
+
+        <span class="nav-icon">☁</span>
+
+        <span>Weather Intelligence</span>
+
+    </a>
+
+
+    <a href="report.html">
+
+        <span class="nav-icon">+</span>
+
+        <span>Incident Reporting</span>
+
+    </a>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="system-status">
+
+            <span class="status-dot"></span>
+
+            <span>
+                Monitoring System Online
+            </span>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+
+    <div class="topbar">
+
+        <div class="page-title">
+
+            <h1>
+                Risk Intelligence Map
+            </h1>
+
+            <p>
+                GIS-based landslide risk monitoring across Northeast India
+            </p>
+
+        </div>
+
+
+        <div class="system-online">
+
+            <span class="status-dot"></span>
+
+            GIS Monitoring Active
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MAP -->
+
+    <div class="map-wrapper">
+
+
+        <div class="map-panel">
+
+            <h3>
+                Risk Monitoring
+            </h3>
+
+            <p>
+                Select a risk marker to view
+                location-specific information.
+            </p>
+
+
+            <div class="map-search">
+
+                <input
+                    id="locationSearch"
+                    type="text"
+                    placeholder="Search location..."
+                >
+
+                <button onclick="searchLocation()">
+                    Go
+                </button>
+
+            </div>
+
+
+            <div class="legend-title">
+                RISK LEVEL
+            </div>
+
+
+            <div class="legend-row">
+
+                <span class="legend-dot critical-dot"></span>
+
+                Critical • 80–100
+
+            </div>
+
+
+            <div class="legend-row">
+
+                <span class="legend-dot high-dot"></span>
+
+                High • 60–79
+
+            </div>
+
+
+            <div class="legend-row">
+
+                <span class="legend-dot moderate-dot"></span>
+
+                Moderate • 40–59
+
+            </div>
+
+
+            <div class="legend-row">
+
+                <span class="legend-dot low-dot"></span>
+
+                Low • 0–39
+
+            </div>
+
+        </div>
+
+
+
+        <div id="riskMap"></div>
+
+
+
+        <div class="map-info"
+             id="mapInfo">
+
+            <small>
+                SELECTED LOCATION
+            </small>
+
+            <h3>
+                Aizawl, Mizoram
+            </h3>
+
+            <p>
+                High rainfall and steep terrain
+                contribute to elevated prototype
+                landslide risk.
+            </p>
+
+
+            <div class="risk-score">
+
+                <span>
+                    AI Risk Score
+                </span>
+
+                <strong>
+                    87
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</main>
+
+
+
+<!-- LEAFLET JS -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+<script>
+
+    /* =========================
+       INITIALIZE MAP
+    ========================= */
+
+    const map = L.map("riskMap").setView(
+        [25.8, 92.5],
+        6
+    );
+
+
+    /* =========================
+       OPEN STREET MAP
+    ========================= */
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom: 18,
+            attribution: "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(map);
+
+
+
+    /* =========================
+       RISK MARKERS
+    ========================= */
+
+    const locations = [
+
+        {
+            name: "Aizawl, Mizoram",
+            lat: 23.7271,
+            lng: 92.7176,
+            risk: 87,
+            level: "Critical",
+            color: "#dc4b51",
+            description:
+                "Elevated prototype risk due to rainfall, steep terrain and historical landslide patterns."
+        },
+
+        {
+            name: "Gangtok, Sikkim",
+            lat: 27.3389,
+            lng: 88.6065,
+            risk: 72,
+            level: "High",
+            color: "#e39a22",
+            description:
+                "Steep mountain terrain with elevated rainfall-related risk."
+        },
+
+        {
+            name: "Shillong, Meghalaya",
+            lat: 25.5788,
+            lng: 91.8933,
+            risk: 64,
+            level: "High",
+            color: "#e39a22",
+            description:
+                "High rainfall conditions create increased slope instability risk."
+        },
+
+        {
+            name: "Imphal, Manipur",
+            lat: 24.8170,
+            lng: 93.9368,
+            risk: 39,
+            level: "Low",
+            color: "#16a66c",
+            description:
+                "Current prototype indicators show comparatively lower risk."
+        },
+
+        {
+            name: "Itanagar, Arunachal Pradesh",
+            lat: 27.0844,
+            lng: 93.6053,
+            risk: 78,
+            level: "High",
+            color: "#e39a22",
+            description:
+                "Mountain terrain and rainfall contribute to elevated risk."
+        },
+
+        {
+            name: "Kohima, Nagaland",
+            lat: 25.6751,
+            lng: 94.1086,
+            risk: 56,
+            level: "Moderate",
+            color: "#d8bd35",
+            description:
+                "Moderate prototype risk requiring continued monitoring."
+        }
+
+    ];
+
+
+
+    /* =========================
+       CUSTOM MARKERS
+    ========================= */
+
+    locations.forEach(function(location) {
+
+
+        const icon = L.divIcon({
+
+            className: "",
+
+            html:
+                `
+                <div style="
+                    width:18px;
+                    height:18px;
+                    border-radius:50%;
+                    background:${location.color};
+                    border:3px solid white;
+                    box-shadow:0 0 0 3px ${location.color}55,
+                               0 3px 8px rgba(0,0,0,.35);
+                "></div>
+                `,
+
+            iconSize: [18,18],
+
+            iconAnchor: [9,9]
+
+        });
+
+
+        const marker = L.marker(
+            [location.lat, location.lng],
+            { icon: icon }
+        ).addTo(map);
+
+
+        marker.bindPopup(
+
+            `
+            <div style="min-width:180px">
+
+                <strong style="font-size:14px">
+                    ${location.name}
+                </strong>
+
+                <br><br>
+
+                <span style="
+                    color:${location.color};
+                    font-weight:700;
+                ">
+                    ${location.level} Risk
+                </span>
+
+                <br>
+
+                AI Risk Score:
+                <strong>${location.risk}/100</strong>
+
+                <br><br>
+
+                <small>
+                    ${location.description}
+                </small>
+
+            </div>
+            `
+
+        );
+
+
+        marker.on(
+            "click",
+            function() {
+
+                showLocation(location);
+
+            }
+        );
+
+    });
+
+
+
+    /* =========================
+       SHOW LOCATION DETAILS
+    ========================= */
+
+    function showLocation(location) {
+
+        document.getElementById("mapInfo").innerHTML = `
+
+            <small>
+                SELECTED LOCATION
+            </small>
+
+            <h3>
+                ${location.name}
+            </h3>
+
+            <p>
+                ${location.description}
+            </p>
+
+            <div class="risk-score">
+
+                <span>
+                    AI Risk Score
+                </span>
+
+                <strong style="color:${location.color}">
+                    ${location.risk}
+                </strong>
+
+            </div>
+
+        `;
+
+    }
+
+
+
+    /* =========================
+       SEARCH LOCATION
+    ========================= */
+
+    function searchLocation() {
+
+        const search =
+            document
+            .getElementById("locationSearch")
+            .value
+            .toLowerCase()
+            .trim();
+
+
+        if (!search) {
+
+            alert("Enter a location name.");
+
+            return;
+
+        }
+
+
+        const found =
+            locations.find(function(location) {
+
+                return location.name
+                    .toLowerCase()
+                    .includes(search);
+
+            });
+
+
+        if (!found) {
+
+            alert(
+                "Location not available in prototype dataset."
+            );
+
+            return;
+
+        }
+
+
+        map.setView(
+            [found.lat, found.lng],
+            10
+        );
+
+
+        showLocation(found);
+
+    }
+
+
+    /* Enter key search */
+
+    document
+        .getElementById("locationSearch")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    searchLocation();
+
+                }
+
+            }
+        );
+
+</script>
+
+
+</body>
+
+  </html>
