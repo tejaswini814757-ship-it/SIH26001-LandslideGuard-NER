@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Risk Prediction | LandslideGuard NER</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+    <style>
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .input-group {
+            margin-bottom: 17px;
+        }
+
+        .input-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: 700;
+            color: #53616a;
+            margin-bottom: 7px;
+        }
+
+        .input-group label span {
+            color: #0da66a;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #dfe5e8;
+            border-radius: 7px;
+            outline: none;
+            font-size: 11px;
+            background: white;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #12a36d;
+        }
+
+        .predict-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #12202c;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .predict-button:hover {
+            background: #12a36d;
+        }
+
+        .prediction-result {
+            text-align: center;
+            padding: 10px 0 25px;
+        }
+
+        .score-ring {
+            width: 165px;
+            height: 165px;
+            border-radius: 50%;
+            border: 14px solid #f3d5d6;
+            margin: 15px auto 18px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-ring strong {
+            font-size: 43px;
+            color: #df4d52;
+        }
+
+        .score-ring span {
+            font-size: 9px;
+            color: #87929a;
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 20px;
+            background: #fff0f0;
+            color: #db4b51;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .result-location {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            max-width: 430px;
+            margin: 10px auto 0;
+            font-size: 10px;
+            color: #7b8790;
+            line-height: 1.6;
+        }
+
+        .factor {
+            margin: 17px 0;
+        }
+
+        .factor-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 7px;
+        }
+
+        .factor-top span:last-child {
+            font-weight: 700;
+        }
+
+        .progress {
+            height: 7px;
+            background: #edf1f2;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .factor-note {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f5f8f8;
+            font-size: 9px;
+            color: #75828a;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #eaf8f2;
+            color: #0c9862;
+            border-radius: 7px;
+            font-size: 9px;
+            margin-bottom: 18px;
+        }
+
+        .model-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #14b875;
+        }
+
+        @media(max-width:850px) {
+
+            .prediction-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+        <div class="sidebar-brand-icon">
+            LG
+        </div>
+
+        <div>
+
+            <h3>
+                Landslide<span>Guard</span>
+            </h3>
+
+            <p>
+                SIH26001 • NER
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="nav-title">
+        MONITORING
+    </div>
+
+
+    <a href="dashboard.html">
+
+        <span class="nav-icon">▦</span>
+
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="risk-map.html">
+
+        <span class="nav-icon">◎</span>
+
+        <span>Risk Intelligence Map</span>
+
+    </a>
+
+
+    <a href="ai-prediction.html"
+       class="active">
+
+        <span class="nav-icon">◈</span>
+
+        <span>AI Risk Prediction</span>
+
+    </a>
+
+
+    <a href="alerts.html">
+
+        <span class="nav-icon">!</span>
+
+        <span>Early Warnings</span>
+
+    </a>
+
+
+    <div class="nav-title">
+        FIELD OPERATIONS
+    </div>
+
+
+    <a href="road-status.html">
+
+        <span class="nav-icon">▱</span>
+
+        <span>Road & Infrastructure</span>
+
+    </a>
+
+
+    <a href="weather.html">
+
+        <span class="nav-icon">☁</span>
+
+        <span>Weather Intelligence</span>
+
+    </a>
+
+
+    <a href="report.html">
+
+        <span class="nav-icon">+</span>
+
+        <span>Incident Reporting</span>
+
+    </a>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="system-status">
+
+            <span class="status-dot"></span>
+
+            <span>
+                Monitoring System Online
+            </span>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+
+    <div class="topbar">
+
+        <div class="page-title">
+
+            <h1>
+                AI Risk Prediction
+            </h1>
+
+            <p>
+                Multi-factor landslide risk assessment engine
+            </p>
+
+        </div>
+
+
+        <div class="system-online">
+
+            <span class="status-dot"></span>
+
+            AI Engine Ready
+
+        </div>
+
+    </div>
+
+
+
+    <div class="prediction-grid">
+
+
+        <!-- INPUT PANEL -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Prediction Parameters
+                    </h2>
+
+                    <p>
+                        Enter environmental indicators
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="model-status">
+
+                <span class="model-dot"></span>
+
+                Prototype AI Risk Engine • Ready
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+
+                    Location
+
+                </label>
+
+                <select id="location">
+
+                    <option value="Aizawl">
+                        Aizawl, Mizoram
+                    </option>
+
+                    <option value="Gangtok">
+                        Gangtok, Sikkim
+                    </option>
+
+                    <option value="Shillong">
+                        Shillong, Meghalaya
+                    </option>
+
+                    <option value="Imphal">
+                        Imphal, Manipur
+                    </option>
+
+                    <option value="Kohima">
+                        Kohima, Nagaland
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+
+                    Rainfall
+
+                    <span>
+                        <span id="rainValue">180</span> mm
+                    </span>
+
+                </label>
+
+                <input
+                    type="range"
+                    id="rainfall"
+                    min="0"
+                    max="300"
+                    value="180"
+                    oninput="updateValues()"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+
+                    Slope
+
+                    <span>
+                        <span id="slopeValue">38</span>°
+                    </span>
+
+                </label>
+
+                <input
+                    type="range"
+                    id="slope"
+                    min="0"
+                    max="60"
+                    value="38"
+                    oninput="updateValues()"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+
+                    Soil Moisture
+
+                    <span>
+                        <span id="soilValue">76</span>%
+                    </span>
+
+                </label>
+
+                <input
+                    type="range"
+                    id="soil"
+                    min="0"
+                    max="100"
+                    value="76"
+                    oninput="updateValues()"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+
+                    Historical Landslide Activity
+
+                    <span>
+                        <span id="historyValue">70</span>%
+                    </span>
+
+                </label>
+
+                <input
+                    type="range"
+                    id="history"
+                    min="0"
+                    max="100"
+                    value="70"
+                    oninput="updateValues()"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+
+                    Terrain Instability
+
+                    <span>
+                        <span id="terrainValue">65</span>%
+                    </span>
+
+                </label>
+
+                <input
+                    type="range"
+                    id="terrain"
+                    min="0"
+                    max="100"
+                    value="65"
+                    oninput="updateValues()"
+                >
+
+            </div>
+
+
+            <button
+                class="predict-button"
+                onclick="calculateRisk()">
+
+                RUN AI RISK ANALYSIS
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- RESULT PANEL -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Prediction Result
+                    </h2>
+
+                    <p>
+                        AI-generated prototype assessment
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="prediction-result">
+
+
+                <div class="score-ring"
+                     id="scoreRing">
+
+                    <strong id="riskScore">
+                        87
+                    </strong>
+
+                    <span>
+                        RISK SCORE / 100
+                    </span>
+
+                </div>
+
+
+                <h3
+                    class="result-location"
+                    id="resultLocation">
+
+                    Aizawl, Mizoram
+
+                </h3>
+
+
+                <span
+                    class="risk-level"
+                    id="riskLevel">
+
+                    CRITICAL RISK
+
+                </span>
+
+
+                <p
+                    class="result-description"
+                    id="resultDescription">
+
+                    Environmental indicators suggest
+                    elevated landslide probability.
+                    Immediate monitoring is recommended
+                    for the prototype scenario.
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- FACTORS -->
+
+    <div class="card"
+         style="margin-top:18px;">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Risk Contributing Factors
+                </h2>
+
+                <p>
+                    Relative contribution of environmental indicators
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="factor">
+
+            <div class="factor-top">
+
+                <span>
+                    Rainfall
+                </span>
+
+                <span id="rainFactor">
+                    78%
+                </span>
+
+            </div>
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="rainBar"
+                    style="width:78%; background:#3d9bd3;">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="factor">
+
+            <div class="factor-top">
+
+                <span>
+                    Terrain / Slope
+                </span>
+
+                <span id="slopeFactor">
+                    63%
+                </span>
+
+            </div>
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="slopeBar"
+                    style="width:63%; background:#e39a22;">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="factor">
+
+            <div class="factor-top">
+
+                <span>
+                    Soil Moisture
+                </span>
+
+                <span id="soilFactor">
+                    76%
+                </span>
+
+            </div>
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="soilBar"
+                    style="width:76%; background:#8a72c7;">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="factor">
+
+            <div class="factor-top">
+
+                <span>
+                    Historical Activity
+                </span>
+
+                <span id="historyFactor">
+                    70%
+                </span>
+
+            </div>
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="historyBar"
+                    style="width:70%; background:#df4d52;">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="factor">
+
+            <div class="factor-top">
+
+                <span>
+                    Terrain Instability
+                </span>
+
+                <span id="terrainFactor">
+                    65%
+                </span>
+
+            </div>
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="terrainBar"
+                    style="width:65%; background:#16a66c;">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="factor-note">
+
+            <strong>Prototype AI Explanation:</strong>
+
+            The demonstration engine combines rainfall,
+            slope, soil moisture, historical activity and
+            terrain instability into a normalized 0–100
+            risk score. In a production deployment,
+            this layer can be replaced by a trained
+            machine-learning model using validated
+            environmental and historical datasets.
+
+        </div>
+
+
+    </div>
+
+
+</main>
+
+
+
+<script>
+
+    function updateValues() {
+
+        document.getElementById("rainValue").innerText =
+            document.getElementById("rainfall").value;
+
+        document.getElementById("slopeValue").innerText =
+            document.getElementById("slope").value;
+
+        document.getElementById("soilValue").innerText =
+            document.getElementById("soil").value;
+
+        document.getElementById("historyValue").innerText =
+            document.getElementById("history").value;
+
+        document.getElementById("terrainValue").innerText =
+            document.getElementById("terrain").value;
+
+    }
+
+
+
+    function calculateRisk() {
+
+        const rainfall =
+            Number(document.getElementById("rainfall").value);
+
+        const slope =
+            Number(document.getElementById("slope").value);
+
+        const soil =
+            Number(document.getElementById("soil").value);
+
+        const history =
+            Number(document.getElementById("history").value);
+
+        const terrain =
+            Number(document.getElementById("terrain").value);
+
+
+        /*
+            Prototype weighted risk calculation.
+            This is NOT a trained ML model.
+        */
+
+        const rainfallScore =
+            (rainfall / 300) * 100;
+
+        const slopeScore =
+            (slope / 60) * 100;
+
+
+        let score =
+            (
+                rainfallScore * 0.30 +
+                slopeScore * 0.20 +
+                soil * 0.20 +
+                history * 0.15 +
+                terrain * 0.15
+            );
+
+
+        score = Math.round(score);
+
+
+        if (score > 100) {
+            score = 100;
+        }
+
+
+        const location =
+            document.getElementById("location").value;
+
+
+        let level;
+        let color;
+        let description;
+
+
+        if (score >= 80) {
+
+            level = "CRITICAL RISK";
+            color = "#df4d52";
+
+            description =
+                "Environmental indicators show a very high prototype risk level. Enhanced monitoring and early-warning review are required.";
+
+        }
+
+        else if (score >= 60) {
+
+            level = "HIGH RISK";
+            color = "#e39a22";
+
+            description =
+                "Multiple environmental indicators indicate elevated prototype landslide risk. Continued monitoring is recommended.";
+
+        }
+
+        else if (score >= 40) {
+
+            level = "MODERATE RISK";
+            color = "#b9a52d";
+
+            description =
+                "The current environmental indicators indicate moderate prototype risk. Routine monitoring should continue.";
+
+        }
+
+        else {
+
+            level = "LOW RISK";
+            color = "#16a66c";
+
+            description =
+                "Current prototype indicators indicate comparatively lower risk conditions.";
+
+        }
+
+
+        document.getElementById("riskScore").innerText =
+            score;
+
+
+        document.getElementById("riskScore").style.color =
+            color;
+
+
+        document.getElementById("scoreRing").style.borderColor =
+            color + "55";
+
+
+        document.getElementById("resultLocation").innerText =
+            location;
+
+
+        document.getElementById("riskLevel").innerText =
+            level;
+
+
+        document.getElementById("riskLevel").style.color =
+            color;
+
+
+        document.getElementById("riskLevel").style.background =
+            color + "18";
+
+
+        document.getElementById("resultDescription").innerText =
+            description;
+
+
+        /*
+            Update factor bars
+        */
+
+        const rainfallScore =
+            Math.round((rainfall / 300) * 100);
+
+        const slopeScore =
+            Math.round((slope / 60) * 100);
+
+
+        document.getElementById("rainFactor").innerText =
+            rainfallScore + "%";
+
+        document.getElementById("rainBar").style.width =
+            rainfallScore + "%";
+
+
+        document.getElementById("slopeFactor").innerText =
+            slopeScore + "%";
+
+        document.getElementById("slopeBar").style.width =
+            slopeScore + "%";
+
+
+        document.getElementById("soilFactor").innerText =
+            soil + "%";
+
+        document.getElementById("soilBar").style.width =
+            soil + "%";
+
+
+        document.getElementById("historyFactor").innerText =
+            history + "%";
+
+        document.getElementById("historyBar").style.width =
+            history + "%";
+
+
+        document.getElementById("terrainFactor").innerText =
+            terrain + "%";
+
+        document.getElementById("terrainBar").style.width =
+            terrain + "%";
+
+    }
+
+
+    updateValues();
+
+</script>
+
+
+</body>
+
+  </html>
